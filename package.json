@@ -1,0 +1,24 @@
+{
+	"private": true,
+	"name": "truncate-internal-links-to-headings",
+	"description": "Display internal links to headings with only the heading name.",
+	"author": "Scott Moore",
+	"license": "MIT",
+	"version": "1.0.0",
+	"scripts": {
+		"build": "node --require esbuild-register build.ts production",
+		"watch": "node --require esbuild-register build.ts"
+	},
+	"devDependencies": {
+		"@codemirror/language": "^6.3.2",
+		"@codemirror/state": "^6.1.4",
+		"@codemirror/view": "^6.7.1",
+		"@types/node": "^18.11.17",
+		"@types/web": "^0.0.84",
+		"esbuild": "^0.16.9",
+		"esbuild-register": "^3.4.2",
+		"obsidian": "^0.16.3",
+		"prettier": "^2.8.1",
+		"typescript": "^4.9.4"
+	}
+}
