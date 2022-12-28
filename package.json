@@ -1,7 +1,7 @@
 {
 	"private": true,
-	"name": "truncate-internal-links-to-headings",
-	"description": "Display internal links to headings with just the heading name.",
+	"name": "short-internal-links-to-headings",
+	"description": "An Obsidian plugin to display internal links to headings as just the heading name.",
 	"author": "Scott Moore",
 	"license": "MIT",
 	"version": "1.0.0",
