@@ -1,13 +1,13 @@
 {
 	"private": true,
 	"name": "truncate-internal-links-to-headings",
-	"description": "Display internal links to headings with only the heading name.",
+	"description": "Display internal links to headings with just the heading name.",
 	"author": "Scott Moore",
 	"license": "MIT",
 	"version": "1.0.0",
 	"scripts": {
-		"build": "node --require esbuild-register build.ts production",
-		"watch": "node --require esbuild-register build.ts"
+		"build": "node --require esbuild-register scripts/build.ts",
+		"watch": "node --require esbuild-register scripts/watch.ts"
 	},
 	"devDependencies": {
 		"@codemirror/language": "^6.3.2",
