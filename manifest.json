@@ -3,7 +3,7 @@
 	"name": "Short Internal Links to Headings",
 	"description": "Display internal links to headings as just the heading name.",
 	"author": "Scott Moore",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"minAppVersion": "0.16.0",
 	"isDesktopOnly": false
 }

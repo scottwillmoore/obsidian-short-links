@@ -25,7 +25,7 @@ const editorExtension = ViewPlugin.fromClass(
 					from,
 					to,
 					enter: (node) => {
-						if (node.name === "hmd-internal-link") {
+						if (node.name.contains("hmd-internal-link")) {
 							const extendedFrom = node.from - 2;
 							const extendedTo = node.to + 2;
 
