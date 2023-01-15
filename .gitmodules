@@ -1,0 +1,3 @@
+[submodule "notes/.obsidian/plugins/hot-reload"]
+	path = notes/.obsidian/plugins/hot-reload
+	url = git@github.com:pjeby/hot-reload.git
