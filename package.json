@@ -4,7 +4,7 @@
 	"description": "An Obsidian plugin to display internal links to headings as just the heading name.",
 	"author": "Scott Moore",
 	"license": "MIT",
-	"version": "1.0.1",
+	"version": "1.0.2",
 	"scripts": {
 		"build": "node --require esbuild-register scripts/build.ts",
 		"watch": "node --require esbuild-register scripts/watch.ts"

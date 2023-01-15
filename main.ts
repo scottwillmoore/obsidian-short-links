@@ -1,7 +1,7 @@
 import { syntaxTree } from "@codemirror/language";
 import { RangeSetBuilder } from "@codemirror/state";
 import { Decoration, DecorationSet, EditorView, ViewPlugin, ViewUpdate } from "@codemirror/view";
-import { MarkdownPostProcessor, Plugin } from "obsidian";
+import { MarkdownPostProcessor, Plugin, livePreviewState } from "obsidian";
 
 const editorExtension = ViewPlugin.fromClass(
 	class {
@@ -12,7 +12,9 @@ const editorExtension = ViewPlugin.fromClass(
 		}
 
 		update(update: ViewUpdate): void {
-			if (update.docChanged || update.selectionSet || update.viewportChanged) {
+			if (update.view.composing || update.view.plugin(livePreviewState)?.mousedown) {
+				this.decorations = this.decorations.map(update.changes);
+			} else if (update.selectionSet || update.viewportChanged) {
 				this.decorations = this.buildDecorations(update.view);
 			}
 		}
@@ -27,7 +29,7 @@ const editorExtension = ViewPlugin.fromClass(
 					enter: (node) => {
 						if (node.name.contains("hmd-internal-link")) {
 							const extendedFrom = node.from - 2;
-							const extendedTo = node.to + 2;
+							const extendedTo = node.to + 3;
 
 							for (const range of view.state.selection.ranges) {
 								if (extendedFrom <= range.to && range.from < extendedTo) {
