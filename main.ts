@@ -38,7 +38,11 @@ const editorExtension = ViewPlugin.fromClass(
 							}
 
 							const link = view.state.sliceDoc(node.from, node.to);
-							const lastIndex = link.lastIndexOf("#");
+							var lastIndex = link.lastIndexOf("#");
+							console.log(lastIndex);
+							if (lastIndex < 0) {
+								lastIndex = link.lastIndexOf("/");
+							}
 							if (lastIndex < 0) {
 								return;
 							}
