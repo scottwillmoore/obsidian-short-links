@@ -1,0 +1,16 @@
+.link-icon::before {
+	content: " ";
+	white-space: pre;
+}
+
+.link-icon {
+	display: inline-flex;
+	align-items: center;
+}
+
+.link-icon svg {
+	width: var(--icon-xs);
+	height: var(--icon-xs);
+	stroke-width: var(--icon-xs-stroke-width);
+	color: var(--text-faint);
+}

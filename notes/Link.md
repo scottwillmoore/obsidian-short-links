@@ -1,6 +1,34 @@
+External link without content
+NOTE: Different in editing and reading view
+
+[](https://wikipedia.org/)
+
 External link
 
 [Wikipedia](https://wikipedia.org/)
+
+External link without end
+NOTE: Different in editing and reading view
+
+[Wikipedia
+
+External link without start
+
+Wikipedia]
+
+External link without url
+NOTE: Different in editing and reading view
+
+[Wikipedia]
+
+Internal link without content
+
+[[]]
+
+Internal link without content with alias
+NOTE: Different in editing and reading view
+
+[[|Alias]]
 
 Internal link
 
@@ -46,7 +74,7 @@ Internal link to block
 
 Internal link to block with alias
 
-[[Australia#^What is the capital city of Victoria?]]
+[[Australia#^d815eb|What is the capital city of Victoria?]]
 
 Internal link to named block
 
