@@ -16,9 +16,10 @@ export class ShortLinkPlugin extends Plugin {
 		await this.loadSettings();
 
 		this.registerEditorExtension(this.editorExtension);
-		this.updateEditorExtension();
-
 		this.addSettingTab(this.settingTab);
+
+		this.updateBody();
+		this.updateEditorExtension();
 	}
 
 	public override async onunload(): Promise<void> {
@@ -32,7 +33,9 @@ export class ShortLinkPlugin extends Plugin {
 			set: (target, property, value, receiver) => {
 				const success = Reflect.set(target, property, value, receiver);
 				if (success) {
+					this.updateBody();
 					this.updateEditorExtension();
+
 					this.saveSettings();
 				}
 				return success;
@@ -42,6 +45,15 @@ export class ShortLinkPlugin extends Plugin {
 
 	private async saveSettings(): Promise<void> {
 		await this.saveData(this.configuration);
+	}
+
+	private updateBody(): void {
+		const className = "hide-external-link-icon";
+		if (this.configuration.replaceExternalLinkIcons) {
+			document.body.classList.add(className);
+		} else {
+			document.body.classList.remove(className);
+		}
 	}
 
 	private updateEditorExtension(): void {

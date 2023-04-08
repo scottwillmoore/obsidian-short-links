@@ -1,3 +1,5 @@
+# External links
+
 External link without content
 NOTE: Different in editing and reading view
 
@@ -16,23 +18,48 @@ External link without start
 
 Wikipedia]
 
+External link without name
+NOTE: Different in editing and reading view
+
+(https://wikipedia.org/)
+
 External link without url
 NOTE: Different in editing and reading view
 
 [Wikipedia]
 
-Internal link without content
+# Internal links
+
+## Files
+
+Internal link without path
 
 [[]]
 
-Internal link without content with alias
-NOTE: Different in editing and reading view
+Internal link with path
 
-[[|Alias]]
+[[Folder1/Folder2/Note]]
+
+Internal link to file with path
+
+[[Folder1/Folder2/File.png]]
 
 Internal link
 
 [[Australia]]
+
+Internal link without path with alias
+NOTE: Different in editing and reading view
+
+[[|Alias]]
+
+Internal link with path with alias
+
+[[Folder1/Folder2/Note|Alias]]
+
+Internal link to file with path with alias
+
+[[Folder1/Folder2/File.png|Alias]]
 
 Internal link with alias
 
@@ -52,6 +79,8 @@ NOTE: Different in editing and reading view
 
 [[Australia|AUS|AU]]
 
+## Headings
+
 Internal link to heading
 
 [[Australia#Victoria]]
@@ -68,7 +97,17 @@ Internal link to sub-heading with alias
 
 [[Australia#Victoria#Melbourne|MEL]]
 
+Internal link to sub-heading without parent heading
+
+[[Australia#Melbourne]]
+
+Internal link to sub-heading without parent heading with alias
+
+[[Australia#Melbourne|MEL]]
+
 Internal link to block
+
+## Blocks
 
 [[Australia#^d815eb]]
 

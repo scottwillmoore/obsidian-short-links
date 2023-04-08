@@ -1,28 +1,45 @@
 import { PluginSettingTab, Setting } from "obsidian";
 import { ShortLinkPlugin } from "./plugin";
 
-export type Configuration = {
-	shortenLinksToFiles: boolean;
+export enum Position {
+	Start = "start",
+	End = "end",
+}
 
-	shortenLinksToHeadings: boolean;
+export interface Configuration {
+	// Files
+	shortLinksToFiles: boolean;
+
+	// Headings
+	shortLinksToHeadings: boolean;
 	showSubheadings: boolean;
 
-	shortenLinksToBlocks: boolean;
+	// Blocks
+	shortLinksToBlocks: boolean;
+	showCarets: boolean;
 
+	// Icons
 	showIcons: boolean;
 	replaceExternalLinkIcons: boolean;
-};
+	iconPosition: Position;
+}
 
 export const defaultConfiguration: Configuration = {
-	shortenLinksToFiles: true,
+	// Files
+	shortLinksToFiles: true,
 
-	shortenLinksToHeadings: true,
-	showSubheadings: false,
+	// Headings
+	shortLinksToHeadings: true,
+	showSubheadings: true,
 
-	shortenLinksToBlocks: true,
+	// Blocks
+	shortLinksToBlocks: true,
+	showCarets: true,
 
+	// Icons
 	showIcons: true,
 	replaceExternalLinkIcons: true,
+	iconPosition: Position.End,
 };
 
 export class ShortLinkPluginSettingTab extends PluginSettingTab {
@@ -40,34 +57,26 @@ export class ShortLinkPluginSettingTab extends PluginSettingTab {
 
 		new Setting(this.containerEl).setHeading().setName("Notes");
 
-		// E.g File.png -> File.png
-		// E.g. Folder1/Folder2/File.png -> File.png
-		// E.g Note -> Note
-		// E.g. Folder1/Folder2/Note -> Note
 		new Setting(this.containerEl)
-			.setName("Shorten links to files")
+			.setName("Short links to files")
 			.setDesc("Only show the file name in internal links to files.")
 			.addToggle((toggle) =>
-				toggle.setValue(configuration.shortenLinksToBlocks).onChange((newValue) => {
-					configuration.shortenLinksToBlocks = newValue;
+				toggle.setValue(configuration.shortLinksToFiles).onChange((newValue) => {
+					configuration.shortLinksToFiles = newValue;
 				})
 			);
 
 		new Setting(this.containerEl).setHeading().setName("Headings");
 
-		// E.g. Folder1/Folder2/Note#Heading1 -> Heading1
-		// E.g. Folder1/Folder2/Note#Heading1#Heading2 -> Heading2
 		new Setting(this.containerEl)
-			.setName("Shorten links to headings")
+			.setName("Short links to headings")
 			.setDesc("Only show the heading name in internal links to headings.")
 			.addToggle((toggle) =>
-				toggle.setValue(configuration.shortenLinksToHeadings).onChange((newValue) => {
-					configuration.shortenLinksToHeadings = newValue;
+				toggle.setValue(configuration.shortLinksToHeadings).onChange((newValue) => {
+					configuration.shortLinksToHeadings = newValue;
 				})
 			);
 
-		// E.g. Folder1/Folder2/Note#Heading1 -> Heading1
-		// E.g. Folder1/Folder2/Note#Heading1#Heading2 -> Heading1#Heading2
 		new Setting(this.containerEl)
 			.setName("Show subheadings")
 			.setDesc("Show both headings and subheadings in shortened internal links to headings.")
@@ -79,39 +88,35 @@ export class ShortLinkPluginSettingTab extends PluginSettingTab {
 
 		new Setting(this.containerEl).setHeading().setName("Blocks");
 
-		// E.g. Folder1/Folder2/Note#^Block -> Block
-		// E.g. Folder1/Folder2/Note#Heading1#^Block -> Block
 		new Setting(this.containerEl)
-			.setName("Shorten links to blocks")
+			.setName("Short links to blocks")
 			.setDesc("Only show the block name in internal links to blocks.")
 			.addToggle((toggle) =>
-				toggle.setValue(configuration.shortenLinksToBlocks).onChange((newValue) => {
-					configuration.shortenLinksToBlocks = newValue;
+				toggle.setValue(configuration.shortLinksToBlocks).onChange((newValue) => {
+					configuration.shortLinksToBlocks = newValue;
+				})
+			);
+
+		new Setting(this.containerEl)
+			.setName("Show carets")
+			.setDesc("Show the block name with a caret.")
+			.addToggle((toggle) =>
+				toggle.setValue(configuration.showCarets).onChange((newValue) => {
+					configuration.showCarets = newValue;
 				})
 			);
 
 		new Setting(this.containerEl).setHeading().setName("Icons");
 
-		// E.g File.png -> [FILE_ICON] File.png
-		// E.g. Folder1/Folder2/File.png -> [FILE_ICON] File.png
-		// E.g Note -> [NOTE_ICON] Note
-		// E.g. Folder1/Folder2/Note -> [NOTE_ICON] Note
-		// E.g. Folder1/Folder2/Note#Heading1 -> [HEADING_ICON] Heading1
-		// E.g. Folder1/Folder2/Note#Heading1#Heading2 -> [HEADING_ICON] Heading2
-		// E.g. Folder1/Folder2/Note#^Block -> [BLOCK_ICON] Block
-		// E.g. Folder1/Folder2/Note#Heading1#^Block -> [BLOCK_ICON] Block
 		new Setting(this.containerEl)
 			.setName("Show icons")
-			.setDesc(
-				"Show icons next to internal links which reflect their type (notes, headings or blocks)."
-			)
+			.setDesc("Show icons with links to indicate their type.")
 			.addToggle((toggle) =>
 				toggle.setValue(configuration.showIcons).onChange((newValue) => {
 					configuration.showIcons = newValue;
 				})
 			);
 
-		// E.g. https://wikipedia.org/ -> [EXTERNAL_ICON] https://wikipedia.org/
 		new Setting(this.containerEl)
 			.setName("Replace external link icons")
 			.setDesc("For consistency, let this plugin replace the default icon for external links.")
@@ -119,6 +124,21 @@ export class ShortLinkPluginSettingTab extends PluginSettingTab {
 				toggle.setValue(configuration.replaceExternalLinkIcons).onChange((newValue) => {
 					configuration.replaceExternalLinkIcons = newValue;
 				})
+			);
+
+		new Setting(this.containerEl)
+			.setName("Icon position")
+			.setDesc("Set whether icons are show before or after the link.")
+			.addDropdown((dropdown) =>
+				dropdown
+					.addOptions({
+						[Position.Start]: "Start",
+						[Position.End]: "End",
+					})
+					.setValue(configuration.iconPosition)
+					.onChange((newValue) => {
+						configuration.iconPosition = newValue as Position;
+					})
 			);
 	}
 }
