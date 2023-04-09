@@ -1,50 +1,60 @@
 import { Extension } from "@codemirror/state";
-import { Plugin } from "obsidian";
+import { MarkdownView, Plugin } from "obsidian";
 
 import { Configuration, defaultConfiguration, ShortLinkPluginSettingTab } from "./configuration";
-import { consoleExtension, createLinkExtension } from "./editorExtension";
+import { createEditorExtension } from "./editorExtension";
 import { createMarkdownPostProcessor } from "./markdownPostProcessor";
-
-const enableDeveloperExtensions = true;
-
-// NOTE: At the moment the markdownPostProcessor isn't reloaded when the
-// configuration is modified...
 
 export class ShortLinkPlugin extends Plugin {
 	public configuration!: Configuration;
 
-	private editorExtension = new Array<Extension>();
 	private settingTab = new ShortLinkPluginSettingTab(this);
+
+	private editorExtension = new Array<Extension>(createEditorExtension(this));
+	private markdownPostProcessor = createMarkdownPostProcessor(this);
 
 	public override async onload(): Promise<void> {
 		await this.loadSettings();
 
-		this.registerEditorExtension(this.editorExtension);
 		this.addSettingTab(this.settingTab);
 
-		const markdownPostProcessor = createMarkdownPostProcessor(this);
-		this.registerMarkdownPostProcessor(markdownPostProcessor);
+		this.registerEditorExtension(this.editorExtension);
+		this.registerMarkdownPostProcessor(this.markdownPostProcessor);
 
 		this.updateBody();
-		this.updateEditorExtension();
 	}
 
 	public override async onunload(): Promise<void> {
+		this.updateBody(true);
+
 		await this.saveSettings();
 	}
 
 	private async loadSettings(): Promise<void> {
 		const loadedConfiguration = await this.loadData();
 		const mergedConfiguration = { ...defaultConfiguration, ...loadedConfiguration };
+
 		this.configuration = new Proxy(mergedConfiguration, {
 			set: (target, property, value, receiver) => {
 				const success = Reflect.set(target, property, value, receiver);
+
 				if (success) {
+					this.editorExtension.length = 0;
+					this.editorExtension.push(createEditorExtension(this));
+
+					this.app.workspace.iterateAllLeaves((leaf) => {
+						if (leaf.view instanceof MarkdownView) {
+							leaf.view.previewMode.rerender(true);
+						}
+					});
+
+					this.app.workspace.updateOptions();
+
 					this.updateBody();
-					this.updateEditorExtension();
 
 					this.saveSettings();
 				}
+
 				return success;
 			},
 		});
@@ -54,26 +64,13 @@ export class ShortLinkPlugin extends Plugin {
 		await this.saveData(this.configuration);
 	}
 
-	private updateBody(): void {
+	private updateBody(removeClasses: boolean = false): void {
 		const className = "hide-external-link-icon";
-		if (this.configuration.replaceExternalLinkIcons) {
+		if (this.configuration.replaceExternalLinkIcons && !removeClasses) {
 			document.body.classList.add(className);
 		} else {
 			document.body.classList.remove(className);
 		}
-	}
-
-	private updateEditorExtension(): void {
-		this.editorExtension.length = 0;
-
-		if (enableDeveloperExtensions) {
-			this.editorExtension.push(consoleExtension);
-		}
-
-		const linkExtension = createLinkExtension(this);
-		this.editorExtension.push(linkExtension);
-
-		this.app.workspace.updateOptions();
 	}
 }
 

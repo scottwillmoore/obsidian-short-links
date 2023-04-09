@@ -7,7 +7,8 @@
 	"version": "1.0.2",
 	"scripts": {
 		"build": "node --require esbuild-register scripts/build.ts",
-		"watch": "node --require esbuild-register scripts/watch.ts"
+		"format": "prettier --write .",
+		"start": "node --require esbuild-register scripts/watch.ts"
 	},
 	"devDependencies": {
 		"@codemirror/language": "^6.3.2",

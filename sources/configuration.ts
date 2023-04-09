@@ -2,8 +2,8 @@ import { PluginSettingTab, Setting } from "obsidian";
 import { ShortLinkPlugin } from "./plugin";
 
 export enum Position {
-	Start = "start",
-	End = "end",
+	Start,
+	End,
 }
 
 // NOTE: It would be a good idea to attempt to maintain a versioned
@@ -17,10 +17,11 @@ export interface Configuration {
 	// Headings
 	shortLinksToHeadings: boolean;
 	showSubheadings: boolean;
+	showHash: boolean;
 
 	// Blocks
 	shortLinksToBlocks: boolean;
-	showCarets: boolean;
+	showCaret: boolean;
 
 	// Icons
 	showIcons: boolean;
@@ -34,11 +35,12 @@ export const defaultConfiguration: Configuration = {
 
 	// Headings
 	shortLinksToHeadings: true,
-	showSubheadings: true,
+	showSubheadings: false,
+	showHash: false,
 
 	// Blocks
 	shortLinksToBlocks: true,
-	showCarets: true,
+	showCaret: false,
 
 	// Icons
 	showIcons: true,
@@ -108,8 +110,8 @@ export class ShortLinkPluginSettingTab extends PluginSettingTab {
 			.setName("Show carets")
 			.setDesc("Show the block name with a caret.")
 			.addToggle((toggle) =>
-				toggle.setValue(configuration.showCarets).onChange((newValue) => {
-					configuration.showCarets = newValue;
+				toggle.setValue(configuration.showCaret).onChange((newValue) => {
+					configuration.showCaret = newValue;
 				})
 			);
 
@@ -142,9 +144,9 @@ export class ShortLinkPluginSettingTab extends PluginSettingTab {
 						[Position.Start]: "Start",
 						[Position.End]: "End",
 					})
-					.setValue(configuration.iconPosition)
+					.setValue(String(configuration.iconPosition))
 					.onChange((newValue) => {
-						configuration.iconPosition = newValue as Position;
+						configuration.iconPosition = Number(newValue);
 					})
 			);
 	}

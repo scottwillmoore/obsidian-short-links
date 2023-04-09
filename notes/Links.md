@@ -17,7 +17,6 @@ NOTE: Different in editing and reading view
 External link without start
 
 Wikipedia]
-
 External link without name
 NOTE: Different in editing and reading view
 
@@ -89,6 +88,14 @@ Internal link to heading with alias
 
 [[Australia#Victoria|VIC]]
 
+Internal link to heading without name
+
+[[Australia#]]
+
+Internal link to heading without name with alias
+
+[[Australia#|Alias]]
+
 Internal link to sub-heading
 
 [[Australia#Victoria#Melbourne]]
@@ -105,15 +112,23 @@ Internal link to sub-heading without parent heading with alias
 
 [[Australia#Melbourne|MEL]]
 
-Internal link to block
-
 ## Blocks
+
+Internal link to block
 
 [[Australia#^d815eb]]
 
 Internal link to block with alias
 
 [[Australia#^d815eb|What is the capital city of Victoria?]]
+
+Internal link to block without id
+
+[[Australia#^]]
+
+Internal link to block without id with alias
+
+[[Australia#^|Alias]]
 
 Internal link to named block
 

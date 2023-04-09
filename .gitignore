@@ -1,8 +1,6 @@
 data.json
 main.js
-
 node_modules/
-
 notes/.obsidian/*
 !notes/.obsidian/community-plugins.json
 !notes/.obsidian/core-plugins.json
