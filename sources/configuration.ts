@@ -6,6 +6,10 @@ export enum Position {
 	End = "end",
 }
 
+// NOTE: It would be a good idea to attempt to maintain a versioned
+// configuration, therefore making it easier to support forward and backward
+// compatibility.
+
 export interface Configuration {
 	// Files
 	shortLinksToFiles: boolean;
@@ -41,6 +45,9 @@ export const defaultConfiguration: Configuration = {
 	replaceExternalLinkIcons: true,
 	iconPosition: Position.End,
 };
+
+// NOTE: It would be nice to have a live preview of example Markdown that would
+// reflect what effect each setting has on the plugin.
 
 export class ShortLinkPluginSettingTab extends PluginSettingTab {
 	private plugin: ShortLinkPlugin;

@@ -1,5 +1,6 @@
 .hide-external-link-icon .external-link {
-	display: none;
+	background-image: unset;
+	padding-right: unset;
 }
 
 .link-icon {

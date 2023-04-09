@@ -3,8 +3,12 @@ import { Plugin } from "obsidian";
 
 import { Configuration, defaultConfiguration, ShortLinkPluginSettingTab } from "./configuration";
 import { consoleExtension, createLinkExtension } from "./editorExtension";
+import { createMarkdownPostProcessor } from "./markdownPostProcessor";
 
 const enableDeveloperExtensions = true;
+
+// NOTE: At the moment the markdownPostProcessor isn't reloaded when the
+// configuration is modified...
 
 export class ShortLinkPlugin extends Plugin {
 	public configuration!: Configuration;
@@ -17,6 +21,9 @@ export class ShortLinkPlugin extends Plugin {
 
 		this.registerEditorExtension(this.editorExtension);
 		this.addSettingTab(this.settingTab);
+
+		const markdownPostProcessor = createMarkdownPostProcessor(this);
+		this.registerMarkdownPostProcessor(markdownPostProcessor);
 
 		this.updateBody();
 		this.updateEditorExtension();

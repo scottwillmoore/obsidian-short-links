@@ -93,6 +93,12 @@ const iterateTree = ({ tree, range, enter }: IterateOptions): void => {
 	} while (true);
 };
 
+// NOTE: The implementation is not very DRY, and could be refactored to remove
+// some of the duplicated logic. For the moment, it is easy enough to
+// understand and modify that I don't think it would be worth the effort to
+// clean up. In addition, if the requirements change in the future any
+// abstraction would likely be removed.
+
 const buildDecorations = (plugin: ShortLinkPlugin, view: EditorView): DecorationSet => {
 	const builder = new RangeSetBuilder<Decoration>();
 
@@ -173,7 +179,7 @@ const buildDecorations = (plugin: ShortLinkPlugin, view: EditorView): Decoration
 					const content = view.state.sliceDoc(contentFrom, contentTo);
 					const components = content.split("|");
 					const path = components[0]!;
-					const hasAlias = components.length > 1;
+					const isAlias = components.length > 1;
 
 					const linkRange = { from: linkFrom, to: linkTo };
 					const hasIntersectionWithLink = hasIntersection.bind(undefined, linkRange);
@@ -187,7 +193,7 @@ const buildDecorations = (plugin: ShortLinkPlugin, view: EditorView): Decoration
 							builder.add(linkFrom, linkFrom, decorations.start.block);
 						}
 
-						if (configuration.shortLinksToBlocks && !hasAlias && !isSelected) {
+						if (configuration.shortLinksToBlocks && !isAlias && !isSelected) {
 							let hideTo = contentFrom + index + 1;
 							if (configuration.showCarets) {
 								hideTo -= 1;
@@ -203,7 +209,7 @@ const buildDecorations = (plugin: ShortLinkPlugin, view: EditorView): Decoration
 						// [[Folder1/Folder2/Note#Heading1]] [[Heading1]]
 
 						let index: number;
-						if (plugin.configuration.showSubheadings) {
+						if (configuration.showSubheadings) {
 							// [[Folder1/Folder2/Note#Heading1#Heading2]] [[Heading1#Heading2]]
 							index = path.indexOf("#");
 						} else {
@@ -216,7 +222,7 @@ const buildDecorations = (plugin: ShortLinkPlugin, view: EditorView): Decoration
 								builder.add(linkFrom, linkFrom, decorations.start.heading);
 							}
 
-							if (plugin.configuration.shortLinksToHeadings && !hasAlias && !isSelected) {
+							if (configuration.shortLinksToHeadings && !isAlias && !isSelected) {
 								builder.add(contentFrom, contentFrom + index + 1, decorations.replace);
 							}
 
@@ -240,7 +246,7 @@ const buildDecorations = (plugin: ShortLinkPlugin, view: EditorView): Decoration
 
 							const index = path.lastIndexOf("/");
 							if (index >= 0) {
-								if (plugin.configuration.shortLinksToFiles && !hasAlias && !isSelected) {
+								if (configuration.shortLinksToFiles && !isAlias && !isSelected) {
 									builder.add(contentFrom, contentFrom + index + 1, decorations.replace);
 								}
 							}
@@ -261,6 +267,11 @@ const buildDecorations = (plugin: ShortLinkPlugin, view: EditorView): Decoration
 
 	return builder.finish();
 };
+
+// NOTE: At the moment we create and load the extension every time the plugin
+// configuration is changed. This is easiest and appears to work, but would it
+// would be better to use a Compartment [1].
+// [1] https://codemirror.net/docs/ref/#state.Compartment
 
 export const createLinkExtension = (plugin: ShortLinkPlugin) =>
 	ViewPlugin.define(
@@ -284,7 +295,7 @@ export const createLinkExtension = (plugin: ShortLinkPlugin) =>
 export const consoleExtension = ViewPlugin.define(() => ({
 	update(update) {
 		if (update.selectionSet || update.viewportChanged) {
-			console.clear();
+			// console.clear();
 
 			const tree = syntaxTree(update.view.state);
 			for (const range of update.view.visibleRanges) {
