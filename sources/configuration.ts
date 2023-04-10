@@ -2,15 +2,13 @@ import { PluginSettingTab, Setting } from "obsidian";
 import { ShortLinkPlugin } from "./plugin";
 
 export enum Position {
-	Start,
-	End,
+	Start = "start",
+	End = "end",
 }
 
-// NOTE: It would be a good idea to attempt to maintain a versioned
-// configuration, therefore making it easier to support forward and backward
-// compatibility.
-
 export interface Configuration {
+	version: 1;
+
 	// Files
 	shortLinksToFiles: boolean;
 
@@ -30,6 +28,8 @@ export interface Configuration {
 }
 
 export const defaultConfiguration: Configuration = {
+	version: 1,
+
 	// Files
 	shortLinksToFiles: true,
 
@@ -45,7 +45,7 @@ export const defaultConfiguration: Configuration = {
 	// Icons
 	showIcons: true,
 	replaceExternalLinkIcons: true,
-	iconPosition: Position.End,
+	iconPosition: Position.Start,
 };
 
 // NOTE: It would be nice to have a live preview of example Markdown that would
@@ -68,7 +68,7 @@ export class ShortLinkPluginSettingTab extends PluginSettingTab {
 
 		new Setting(this.containerEl)
 			.setName("Short links to files")
-			.setDesc("Only show the file name in internal links to files.")
+			.setDesc("Only show the file name in links to headings.")
 			.addToggle((toggle) =>
 				toggle.setValue(configuration.shortLinksToFiles).onChange((newValue) => {
 					configuration.shortLinksToFiles = newValue;
@@ -79,7 +79,7 @@ export class ShortLinkPluginSettingTab extends PluginSettingTab {
 
 		new Setting(this.containerEl)
 			.setName("Short links to headings")
-			.setDesc("Only show the heading name in internal links to headings.")
+			.setDesc("Only show the last heading name in links to headings.")
 			.addToggle((toggle) =>
 				toggle.setValue(configuration.shortLinksToHeadings).onChange((newValue) => {
 					configuration.shortLinksToHeadings = newValue;
@@ -88,10 +88,18 @@ export class ShortLinkPluginSettingTab extends PluginSettingTab {
 
 		new Setting(this.containerEl)
 			.setName("Show subheadings")
-			.setDesc("Show both headings and subheadings in shortened internal links to headings.")
+			.setDesc("Show all heading names in links to headings.")
 			.addToggle((toggle) =>
 				toggle.setValue(configuration.showSubheadings).onChange((newValue) => {
 					configuration.showSubheadings = newValue;
+				})
+			);
+		new Setting(this.containerEl)
+			.setName("Show hash")
+			.setDesc("Show the hash at the start of links to headings.")
+			.addToggle((toggle) =>
+				toggle.setValue(configuration.showHash).onChange((newValue) => {
+					configuration.showHash = newValue;
 				})
 			);
 
@@ -99,7 +107,7 @@ export class ShortLinkPluginSettingTab extends PluginSettingTab {
 
 		new Setting(this.containerEl)
 			.setName("Short links to blocks")
-			.setDesc("Only show the block name in internal links to blocks.")
+			.setDesc("Only show the block name in links to blocks.")
 			.addToggle((toggle) =>
 				toggle.setValue(configuration.shortLinksToBlocks).onChange((newValue) => {
 					configuration.shortLinksToBlocks = newValue;
@@ -107,8 +115,8 @@ export class ShortLinkPluginSettingTab extends PluginSettingTab {
 			);
 
 		new Setting(this.containerEl)
-			.setName("Show carets")
-			.setDesc("Show the block name with a caret.")
+			.setName("Show caret")
+			.setDesc("Show the caret at the start of links to blocks.")
 			.addToggle((toggle) =>
 				toggle.setValue(configuration.showCaret).onChange((newValue) => {
 					configuration.showCaret = newValue;
@@ -119,7 +127,7 @@ export class ShortLinkPluginSettingTab extends PluginSettingTab {
 
 		new Setting(this.containerEl)
 			.setName("Show icons")
-			.setDesc("Show icons with links to indicate their type.")
+			.setDesc("Show icons to indicate the type of internal link.")
 			.addToggle((toggle) =>
 				toggle.setValue(configuration.showIcons).onChange((newValue) => {
 					configuration.showIcons = newValue;
@@ -128,7 +136,7 @@ export class ShortLinkPluginSettingTab extends PluginSettingTab {
 
 		new Setting(this.containerEl)
 			.setName("Replace external link icons")
-			.setDesc("For consistency, let this plugin replace the default icon for external links.")
+			.setDesc("For consistency, replace the default icon used for external links.")
 			.addToggle((toggle) =>
 				toggle.setValue(configuration.replaceExternalLinkIcons).onChange((newValue) => {
 					configuration.replaceExternalLinkIcons = newValue;
@@ -137,16 +145,16 @@ export class ShortLinkPluginSettingTab extends PluginSettingTab {
 
 		new Setting(this.containerEl)
 			.setName("Icon position")
-			.setDesc("Set whether icons are show before or after the link.")
+			.setDesc("Set whether icons are show at the start or end of links.")
 			.addDropdown((dropdown) =>
 				dropdown
 					.addOptions({
 						[Position.Start]: "Start",
 						[Position.End]: "End",
 					})
-					.setValue(String(configuration.iconPosition))
+					.setValue(configuration.iconPosition)
 					.onChange((newValue) => {
-						configuration.iconPosition = Number(newValue);
+						configuration.iconPosition = newValue as Position;
 					})
 			);
 	}

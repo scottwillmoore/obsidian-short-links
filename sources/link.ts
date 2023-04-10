@@ -3,15 +3,15 @@ import { getIcon } from "obsidian";
 import { Position } from "./configuration";
 
 export enum LinkType {
-	External,
-	Internal,
+	External = "external",
+	Internal = "internal",
 }
 
 export enum InternalLinkType {
-	Block,
-	Heading,
-	Note,
-	File,
+	Block = "block",
+	Heading = "heading",
+	Note = "note",
+	File = "file",
 }
 
 export interface LinkMap<T> {
@@ -104,7 +104,7 @@ export const parseInternalLink = (link: string): InternalLink => {
 
 			return { type, heading, headingIndex, lastHeading, lastHeadingIndex };
 		} else {
-			const pathIndex = Math.max(link.lastIndexOf("/"), 0);
+			const pathIndex = link.lastIndexOf("/");
 			const path = link.substring(0, pathIndex);
 
 			const nameIndex = pathIndex + 1;
