@@ -3,6 +3,7 @@ import { MarkdownPostProcessor } from "obsidian";
 import { Position } from "./configuration";
 import { createLinkIcon, iconMap, InternalLinkType, LinkType, parseInternalLink } from "./link";
 import { ShortLinkPlugin } from "./plugin";
+import { sliceText } from "./range";
 
 type CreateMarkdownPostProcessor = (plugin: ShortLinkPlugin) => MarkdownPostProcessor;
 
@@ -18,9 +19,7 @@ export const createMarkdownPostProcessor: CreateMarkdownPostProcessor = (plugin)
 		}
 	};
 
-	const externalLinkElements = element.querySelectorAll(
-		"a.external-link"
-	) as NodeListOf<HTMLAnchorElement>;
+	const externalLinkElements = element.querySelectorAll("a.external-link") as NodeListOf<HTMLAnchorElement>;
 
 	for (const linkElement of externalLinkElements) {
 		if (configuration.showIcons && configuration.replaceExternalLinkIcons) {
@@ -28,9 +27,7 @@ export const createMarkdownPostProcessor: CreateMarkdownPostProcessor = (plugin)
 		}
 	}
 
-	const internalLinkElements = element.querySelectorAll(
-		"a.internal-link"
-	) as NodeListOf<HTMLAnchorElement>;
+	const internalLinkElements = element.querySelectorAll("a.internal-link") as NodeListOf<HTMLAnchorElement>;
 
 	for (const linkElement of internalLinkElements) {
 		const link = linkElement.getAttribute("href");
@@ -40,28 +37,46 @@ export const createMarkdownPostProcessor: CreateMarkdownPostProcessor = (plugin)
 
 		const internalLink = parseInternalLink(link);
 
-		switch (internalLink.type) {
-			case InternalLinkType.Block:
-				if (configuration.shortLinksToBlocks && !isAlias) {
-					linkElement.setText(internalLink.block);
-				}
-				break;
+		if (configuration.shortLinksToFiles && !isAlias) {
+			const fileNameText = sliceText(link, internalLink.fileName);
+			linkElement.setText(fileNameText);
+		}
 
+		switch (internalLink.type) {
 			case InternalLinkType.Heading:
-				if (configuration.shortLinksToHeadings && !isAlias) {
-					if (configuration.showSubheadings) {
-						linkElement.setText(internalLink.heading);
-					} else {
-						linkElement.setText(internalLink.lastHeading);
+				let formattedHeadingText;
+				if (configuration.showSubheadings) {
+					const headingText = sliceText(link, internalLink.heading);
+					formattedHeadingText = headingText.split("#").join(" > ");
+				} else {
+					formattedHeadingText = sliceText(link, internalLink.lastHeading);
+				}
+
+				if (!isAlias) {
+					if (configuration.shortLinksToHeadings) {
+						linkElement.setText(formattedHeadingText);
+					} else if (configuration.shortLinksToFiles) {
+						linkElement.appendText(" > " + formattedHeadingText);
 					}
 				}
+
 				break;
 
-			case InternalLinkType.Note:
-			case InternalLinkType.File:
-				if (configuration.shortLinksToFiles && !isAlias) {
-					linkElement.setText(internalLink.name);
+			case InternalLinkType.Block:
+				const block = { ...internalLink.block };
+				if (configuration.showCaret) {
+					block.from -= 1;
 				}
+				const blockText = sliceText(link, block);
+
+				if (!isAlias) {
+					if (configuration.shortLinksToBlocks) {
+						linkElement.setText(blockText);
+					} else if (configuration.shortLinksToFiles) {
+						linkElement.appendText(" > " + blockText);
+					}
+				}
+
 				break;
 		}
 

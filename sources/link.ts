@@ -1,6 +1,7 @@
 import { getIcon } from "obsidian";
 
 import { Position } from "./configuration";
+import { createRange, getRange, Range, sliceText } from "./range";
 
 export enum LinkType {
 	External = "external",
@@ -8,10 +9,9 @@ export enum LinkType {
 }
 
 export enum InternalLinkType {
-	Block = "block",
-	Heading = "heading",
-	Note = "note",
 	File = "file",
+	Heading = "heading",
+	Block = "block",
 }
 
 export interface LinkMap<T> {
@@ -22,129 +22,116 @@ export interface LinkMap<T> {
 export const iconMap: LinkMap<string> = {
 	[LinkType.External]: "external-link",
 	[LinkType.Internal]: {
-		[InternalLinkType.Block]: "box",
-		[InternalLinkType.Heading]: "hash",
-		[InternalLinkType.Note]: "file-text",
 		[InternalLinkType.File]: "file",
+		[InternalLinkType.Heading]: "hash",
+		[InternalLinkType.Block]: "box",
 	},
 };
 
-interface InternalLinkBlock {
-	type: InternalLinkType.Block;
-	block: string;
-	blockIndex: number;
-}
-
-interface InternalLinkHeading {
-	type: InternalLinkType.Heading;
-	heading: string;
-	headingIndex: number;
-	lastHeading: string;
-	lastHeadingIndex: number;
-}
-
-interface InternalLinkNote {
-	type: InternalLinkType.Note;
-	path: string;
-	pathIndex: number;
-	name: string;
-	nameIndex: number;
-}
-
 interface InternalLinkFile {
 	type: InternalLinkType.File;
-	path: string;
-	pathIndex: number;
-	name: string;
-	nameIndex: number;
-	base: string;
-	extension: string;
+	filePath: Range;
+	parentPath: Range;
+	fileName: Range;
+	fileBase: Range;
+	fileExtension: Range;
 }
 
-export type InternalLink = InternalLinkBlock | InternalLinkHeading | InternalLinkNote | InternalLinkFile;
+interface InternalLinkHeading extends Omit<InternalLinkFile, "type"> {
+	type: InternalLinkType.Heading;
+	heading: Range;
+	lastHeading: Range;
+}
 
-export const parseInternalLink = (link: string): InternalLink => {
-	const caretIndex = link.lastIndexOf("^");
-	if (caretIndex >= 0) {
-		const type = InternalLinkType.Block;
+interface InternalLinkBlock extends Omit<InternalLinkFile, "type"> {
+	type: InternalLinkType.Block;
+	block: Range;
+}
 
-		const blockIndex = caretIndex + 1;
-		const block = link.substring(blockIndex);
+export type InternalLink = InternalLinkFile | InternalLinkHeading | InternalLinkBlock;
 
-		// Folder1/Folder2/Note#^
-		//						  block
+export const parseInternalLink = (linkText: string): InternalLink => {
+	const link = getRange(linkText);
 
-		// Folder1/Folder2/Note#^Block
-		//						 ..... block
+	// hashIndex is relative to link.
+	const hashIndex = linkText.indexOf("#");
+	const hasHash = hashIndex >= 0;
 
-		return { type, block, blockIndex };
-	} else {
-		const hashIndex = link.indexOf("#");
+	const filePathTo = hasHash ? link.from + hashIndex : link.to;
+	const filePath = createRange(link.from, filePathTo);
 
-		if (hashIndex >= 0) {
-			const type = InternalLinkType.Heading;
+	// lastSlashIndex is relative to filePath.
+	const filePathText = sliceText(linkText, filePath);
+	const lastSlashIndex = filePathText.lastIndexOf("/");
+	const hasSlash = lastSlashIndex >= 0;
 
-			const headingIndex = hashIndex + 1;
-			const heading = link.substring(headingIndex);
+	const parentPathTo = hasSlash ? filePath.from + lastSlashIndex : filePath.from;
+	const parentPath = createRange(filePath.from, parentPathTo);
 
-			const lastHeadingIndex = link.lastIndexOf("#") + 1;
-			const lastHeading = link.substring(lastHeadingIndex);
+	const fileNameFrom = hasSlash ? Math.min(parentPath.to + 1, filePath.to) : filePath.from;
+	const fileName = createRange(fileNameFrom, filePath.to);
 
-			// Folder1/Folder2/Note#
-			//                       heading
-			// 						 lastHeading
+	// lastPeriodIndex is relative to fileName.
+	const fileNameText = sliceText(linkText, fileName);
+	const lastPeriodIndex = fileNameText.lastIndexOf(".");
+	const hasPeriod = lastPeriodIndex >= 0;
 
-			// Folder1/Folder2/Note#Heading1
-			//                      ........ heading
-			//                      ........ lastHeading
+	const fileBaseTo = hasPeriod ? fileName.from + lastPeriodIndex : fileName.to;
+	const fileBase = createRange(fileName.from, fileBaseTo);
 
-			// Folder1/Folder2/Note#Heading1#Heading2
-			//                      ................. heading
-			//                               ........ lastHeading
+	const fileExtensionFrom = hasPeriod ? Math.min(fileBase.from + 1, fileName.to) : fileName.from;
+	const fileExtension = createRange(fileExtensionFrom, fileName.to);
 
-			return { type, heading, headingIndex, lastHeading, lastHeadingIndex };
-		} else {
-			const pathIndex = link.lastIndexOf("/");
-			const path = link.substring(0, pathIndex);
+	if (hasHash) {
+		// hashIndex is relative to link, therefore nextIndex is also relative to link.
+		const nextIndex = hashIndex + 1;
 
-			const nameIndex = pathIndex + 1;
-			const name = link.substring(nameIndex);
+		if (linkText[nextIndex] === "^") {
+			const blockFrom = Math.min(nextIndex + 1, link.to);
+			const block = createRange(blockFrom, link.to);
 
-			const matches = name.match(/(?<base>.+)\.(?<extension>\w+)/);
-			if (matches === null) {
-				const type = InternalLinkType.Note;
-
-				// Note
-				//      path
-				// .... name
-
-				// Folder1/Folder2/Note
-				// ...............      path
-				//                 .... name
-
-				return { type, path, pathIndex, name, nameIndex };
-			} else {
-				const type = InternalLinkType.File;
-
-				const base = matches.groups!.base!;
-				const extension = matches.groups!.extension!;
-
-				// File.svg
-				//          path
-				// ........ name
-				// ....     base
-				//      ... extension
-
-				// Folder1/Folder2/File.svg
-				// ...............          path
-				//                 ........ name
-				//                 ....     base
-				//                      ... extension
-
-				return { type, path, pathIndex, name, nameIndex, base, extension };
-			}
+			return {
+				type: InternalLinkType.Block,
+				filePath,
+				parentPath,
+				fileName,
+				fileBase,
+				fileExtension,
+				block,
+			};
 		}
+
+		const headingFrom = Math.min(nextIndex, link.to);
+		const heading = createRange(headingFrom, link.to);
+
+		// lastHashIndex is relative to heading.
+		const headingText = sliceText(linkText, heading);
+		const lastHashIndex = headingText.lastIndexOf("#");
+		const hasLastHash = lastHashIndex >= 0;
+
+		const lastHeadingFrom = hasLastHash ? Math.min(heading.from + lastHashIndex + 1, heading.to) : heading.from;
+		const lastHeading = createRange(lastHeadingFrom, heading.to);
+
+		return {
+			type: InternalLinkType.Heading,
+			filePath,
+			parentPath,
+			fileName,
+			fileBase,
+			fileExtension,
+			heading,
+			lastHeading,
+		};
 	}
+
+	return {
+		type: InternalLinkType.File,
+		filePath,
+		parentPath,
+		fileName,
+		fileBase,
+		fileExtension,
+	};
 };
 
 export const createLinkIcon = (iconId: string, iconPosition: Position): HTMLElement => {
@@ -159,8 +146,7 @@ export const createLinkIcon = (iconId: string, iconPosition: Position): HTMLElem
 	linkIcon.addClass("link-icon");
 	linkIcon.appendChild(icon);
 
-	const position = iconPosition === Position.Start ? "start" : "end";
-	linkIcon.setAttribute("data-position", position);
+	linkIcon.setAttribute("data-position", iconPosition);
 
 	return linkIcon;
 };

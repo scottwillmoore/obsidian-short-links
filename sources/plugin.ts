@@ -22,10 +22,12 @@ export class ShortLinkPlugin extends Plugin {
 		this.registerMarkdownPostProcessor(this.markdownPostProcessor);
 
 		this.updateBody();
+		this.updateEditor();
 	}
 
 	public override async onunload(): Promise<void> {
 		this.updateBody(true);
+		this.updateEditor();
 
 		await this.saveSettings();
 	}
@@ -39,18 +41,8 @@ export class ShortLinkPlugin extends Plugin {
 				const success = Reflect.set(target, property, value, receiver);
 
 				if (success) {
-					this.editorExtension.length = 0;
-					this.editorExtension.push(createEditorExtension(this));
-
-					this.app.workspace.iterateAllLeaves((leaf) => {
-						if (leaf.view instanceof MarkdownView) {
-							leaf.view.previewMode.rerender(true);
-						}
-					});
-
-					this.app.workspace.updateOptions();
-
 					this.updateBody();
+					this.updateEditor();
 
 					this.saveSettings();
 				}
@@ -71,6 +63,21 @@ export class ShortLinkPlugin extends Plugin {
 		} else {
 			document.body.classList.remove(className);
 		}
+	}
+
+	private updateEditor(): void {
+		// Update editor extensions
+		this.editorExtension.length = 0;
+		this.editorExtension.push(createEditorExtension(this));
+
+		this.app.workspace.updateOptions();
+
+		// Update markdown post processors
+		this.app.workspace.iterateAllLeaves((leaf) => {
+			if (leaf.view instanceof MarkdownView) {
+				leaf.view.previewMode.rerender(true);
+			}
+		});
 	}
 }
 

@@ -7,6 +7,7 @@ import { livePreviewState } from "obsidian";
 import { Configuration, Position } from "./configuration";
 import { createLinkIcon, iconMap, InternalLinkType, LinkMap, LinkType, parseInternalLink } from "./link";
 import { ShortLinkPlugin } from "./plugin";
+import { intersectRange, Range } from "./range";
 
 class LinkIconWidget extends WidgetType {
 	private iconId: string;
@@ -47,13 +48,6 @@ const createDecorationMap = (iconPosition: Position): LinkMap<Decoration> =>
 			widget: new LinkIconWidget(iconId, iconPosition),
 		})
 	);
-
-interface Range {
-	from: number;
-	to: number;
-}
-
-const intersectRange = (a: Range, b: Range): boolean => a.from <= b.to && a.to >= b.from;
 
 interface IterateOptions {
 	tree: Tree;
@@ -172,26 +166,14 @@ const createDecorationSet = (
 					}
 
 					switch (internalLink.type) {
-						case InternalLinkType.Block:
-							if (configuration.shortLinksToBlocks && !isAlias && !isSelected) {
-								let hideTo = linkFrom + internalLink.blockIndex;
-
-								if (configuration.showCaret) {
-									hideTo -= 1;
-								}
-
-								builder.add(linkFrom, hideTo, Decoration.replace({}));
-							}
-							break;
-
 						case InternalLinkType.Heading:
 							if (configuration.shortLinksToHeadings && !isAlias && !isSelected) {
 								let hideTo = linkFrom;
 
 								if (configuration.showSubheadings) {
-									hideTo += internalLink.headingIndex;
+									hideTo += internalLink.heading.from;
 								} else {
-									hideTo += internalLink.lastHeadingIndex;
+									hideTo += internalLink.lastHeading.from;
 								}
 
 								if (configuration.showHash) {
@@ -202,13 +184,22 @@ const createDecorationSet = (
 							}
 							break;
 
-						case InternalLinkType.Note:
-						case InternalLinkType.File:
-							if (configuration.shortLinksToFiles && !isAlias && !isSelected) {
-								let hideTo = linkFrom + internalLink.nameIndex;
+						case InternalLinkType.Block:
+							if (configuration.shortLinksToBlocks && !isAlias && !isSelected) {
+								let hideTo = linkFrom + internalLink.block.from;
+
+								if (configuration.showCaret) {
+									hideTo -= 1;
+								}
+
 								builder.add(linkFrom, hideTo, Decoration.replace({}));
 							}
 							break;
+					}
+
+					if (configuration.shortLinksToFiles && !isAlias && !isSelected) {
+						let hideTo = linkFrom + internalLink.fileName.from;
+						builder.add(linkFrom, hideTo, Decoration.replace({}));
 					}
 
 					if (configuration.showIcons && configuration.iconPosition === Position.End) {

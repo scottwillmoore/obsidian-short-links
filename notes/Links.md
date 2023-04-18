@@ -37,11 +37,11 @@ Internal link without path
 
 Internal link with path
 
-[[Folder1/Folder2/Note]]
+[[Folder 1/Folder 2/Note]]
 
 Internal link to file with path
 
-[[Folder1/Folder2/File.png]]
+[[Folder 1/Folder 2/File.png]]
 
 Internal link
 
@@ -54,11 +54,11 @@ NOTE: Different in editing and reading view
 
 Internal link with path with alias
 
-[[Folder1/Folder2/Note|Alias]]
+[[Folder 1/Folder 2/Note|Alias]]
 
 Internal link to file with path with alias
 
-[[Folder1/Folder2/File.png|Alias]]
+[[Folder 1/Folder 2/File.png|Alias]]
 
 Internal link with alias
 
@@ -96,21 +96,46 @@ Internal link to heading without name with alias
 
 [[Australia#|Alias]]
 
-Internal link to sub-heading
+Internal link to heading with path
+
+[[Folder 1/Folder 2/Note#Heading 1]]
+
+Internal link to heading with path with alias
+
+[[Folder 1/Folder 2/Note#Heading 1|Alias]]
+
+Internal link to subheading
 
 [[Australia#Victoria#Melbourne]]
 
-Internal link to sub-heading with alias
+Internal link to subheading with alias
 
 [[Australia#Victoria#Melbourne|MEL]]
 
-Internal link to sub-heading without parent heading
+Internal link to subheading with path
+
+[[Folder 1/Folder 2/Note#Heading 1#Heading 2]]
+
+Internal link to subheading with path with alias
+
+[[Folder 1/Folder 2/Note#Heading 1#Heading 2|Alias]]
+
+Internal link to subheading without parent heading
 
 [[Australia#Melbourne]]
 
-Internal link to sub-heading without parent heading with alias
+Internal link to subheading without parent heading with alias
 
 [[Australia#Melbourne|MEL]]
+
+Internal link to subheading without parent heading with path
+
+[[Folder 1/Folder 2/Note#Heading 2]]
+
+Internal link to subheading without parent heading with path with alias
+
+[[Folder 1/Folder 2/Note#Heading 2|Alias]]
+
 
 ## Blocks
 
@@ -121,6 +146,14 @@ Internal link to block
 Internal link to block with alias
 
 [[Australia#^d815eb|What is the capital city of Victoria?]]
+
+Internal link to block with path
+
+[[Folder 1/Folder 2/Note#^2dbed0]]
+
+Internal link to block with path with alias
+
+[[Folder 1/Folder 2/Note#^2dbed0|Alias]]
 
 Internal link to block without id
 
