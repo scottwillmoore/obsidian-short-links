@@ -4,18 +4,28 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.2] - 2023-05-07
+
+### Changed
+
+- Add test cases for footnotes to the Obsidian vault.
+
+### Fixed
+
+- Do not show icons for footnotes. #8.
+
 ## [1.1.1] - 2023-04-18
+
+### Changed
+
+- Update many notes in the Obsidian vault.
+- Update the NPM dependencies.
 
 ### Fixed
 
 - Rename the symbolic link to this plugin in the Obsidian vault.
 - Major update to the internal link parser. #6.
 - Modified the behaviour of the markdown post processor. #6.
-
-### Changed
-
-- Update many notes in the Obsidian vault.
-- Update the NPM dependencies.
 
 ## [1.1.0] - 2023-04-10
 

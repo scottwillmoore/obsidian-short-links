@@ -124,7 +124,7 @@ const createDecorationSet = (
 
 				// Parse internal links
 				// [[
-				if (cursor.name.contains("formatting-link-start")) {
+				if (cursor.name.contains("formatting-link-start") && !cursor.name.contains("footref")) {
 					// [[Note]]
 					// ........
 					// ^
@@ -249,7 +249,7 @@ export const createEditorExtension: CreateEditorExtension = (plugin) =>
 // NOTE: This extension is only used for development to analyze the structure of
 // the CodeMirror syntax tree.
 
-export const consoleExtension = ViewPlugin.define(() => ({
+export const consoleEditorExtension = ViewPlugin.define(() => ({
 	update(update) {
 		if (update.selectionSet || update.viewportChanged) {
 			console.clear();
