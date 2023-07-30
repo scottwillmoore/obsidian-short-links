@@ -7,7 +7,7 @@ import { sliceText } from "./range";
 
 type CreateMarkdownPostProcessor = (plugin: ShortLinkPlugin) => MarkdownPostProcessor;
 
-export const createMarkdownPostProcessor: CreateMarkdownPostProcessor = (plugin) => (element) => {
+export const createMarkdownPostProcessor: CreateMarkdownPostProcessor = (plugin) => (element, context) => {
 	const configuration = plugin.configuration;
 
 	const insertLinkIcon = (element: Element, iconId: string): void => {
@@ -45,6 +45,14 @@ export const createMarkdownPostProcessor: CreateMarkdownPostProcessor = (plugin)
 		const ariaLabel = linkElement.getAttribute("aria-label");
 		const expectedText = ariaLabel?.replace(".md", "");
 		const isAlias = expectedText !== linkElement.getText();
+
+		const sectionInfo = context.getSectionInfo(linkElement);
+		if (sectionInfo) {
+			console.log(
+				linkElement.getText(),
+				sectionInfo.text.split("\n").slice(sectionInfo.lineStart, sectionInfo.lineEnd)
+			);
+		}
 
 		const internalLink = parseInternalLink(link);
 

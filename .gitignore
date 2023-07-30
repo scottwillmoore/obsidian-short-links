@@ -4,4 +4,5 @@ node_modules/
 notes/.obsidian/*
 !notes/.obsidian/community-plugins.json
 !notes/.obsidian/core-plugins.json
-!notes/.obsidian/plugins/
+!notes/.obsidian/plugins/hot-reload
+!notes/.obsidian/plugins/short-links
