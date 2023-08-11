@@ -36,17 +36,14 @@ export const createMarkdownPostProcessor: CreateMarkdownPostProcessor = (plugin)
 		// NOTE: There is no easy way to detect whether a link is an alias or
 		// not. At the moment, the only way to detect whether a link is an
 		// alias is to check whether the `aria-label` attribute exists.
-		// However, this does not work in rare cases, for example in the
-		// Dataview plugin.  Therefore, we also must check whether the
-		// attribute is different from  the link text and also strip any file
-		// names! At the moment we just remove all instances of `.md`, however
-		// this is not a perfect solution.
 
-		const ariaLabel = linkElement.getAttribute("aria-label");
-		const expectedText = ariaLabel?.replace(".md", "");
-		const isAlias = expectedText !== linkElement.getText();
+		const isAlias = linkElement.hasAttribute("aria-label");
 
 		const internalLink = parseInternalLink(link);
+
+		const shortNames = true;
+		if (configuration.shortNames && !isAlias) {
+		}
 
 		if (configuration.shortLinksToFiles && !isAlias) {
 			const fileBaseText = sliceText(link, internalLink.fileBase);

@@ -7,10 +7,11 @@ export enum Position {
 }
 
 export interface Configuration {
-	version: 1;
+	version: 2;
 
 	// Files
 	shortLinksToFiles: boolean;
+	shortNames: string;
 
 	// Headings
 	shortLinksToHeadings: boolean;
@@ -28,10 +29,11 @@ export interface Configuration {
 }
 
 export const defaultConfiguration: Configuration = {
-	version: 1,
+	version: 2,
 
 	// Files
 	shortLinksToFiles: true,
+	shortNames: "short-name",
 
 	// Headings
 	shortLinksToHeadings: true,
@@ -64,7 +66,7 @@ export class ShortLinkPluginSettingTab extends PluginSettingTab {
 
 		this.containerEl.empty();
 
-		new Setting(this.containerEl).setHeading().setName("Notes");
+		new Setting(this.containerEl).setHeading().setName("Files");
 
 		new Setting(this.containerEl)
 			.setName("Short links to files")
@@ -72,6 +74,15 @@ export class ShortLinkPluginSettingTab extends PluginSettingTab {
 			.addToggle((toggle) =>
 				toggle.setValue(configuration.shortLinksToFiles).onChange((newValue) => {
 					configuration.shortLinksToFiles = newValue;
+				})
+			);
+
+		new Setting(this.containerEl)
+			.setName("Short names")
+			.setDesc("Replace links with the short name defined by the frontmatter.")
+			.addText((text) =>
+				text.setValue(configuration.shortNames).onChange((newValue) => {
+					configuration.shortNames = newValue;
 				})
 			);
 

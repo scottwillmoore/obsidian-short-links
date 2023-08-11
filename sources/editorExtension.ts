@@ -4,10 +4,30 @@ import { Decoration, DecorationSet, EditorView, ViewPlugin, WidgetType } from "@
 import { Tree, TreeCursor } from "@lezer/common";
 import { livePreviewState } from "obsidian";
 
-import { Configuration, Position } from "./configuration";
+import { Position } from "./configuration";
 import { createLinkIcon, iconMap, InternalLinkType, LinkMap, LinkType, parseInternalLink } from "./link";
 import { ShortLinkPlugin } from "./plugin";
-import { intersectRange, Range } from "./range";
+import { intersectRange, Range, sliceText } from "./range";
+
+class TextWidget extends WidgetType {
+	private text: string;
+
+	public constructor(text: string) {
+		super();
+
+		this.text = text;
+	}
+
+	public override eq(widget: TextWidget): boolean {
+		return this.text === widget.text;
+	}
+
+	override toDOM(view: EditorView): HTMLElement {
+		const span = document.createElement("span");
+		span.setText(this.text);
+		return span;
+	}
+}
 
 class LinkIconWidget extends WidgetType {
 	private iconId: string;
@@ -70,8 +90,8 @@ const iterateTree = ({ tree, range, enter }: IterateOptions): void => {
 };
 
 const createDecorationSet = (
+	{ app, configuration }: ShortLinkPlugin,
 	view: EditorView,
-	configuration: Configuration,
 	decorationMap: LinkMap<Decoration>
 ): DecorationSet => {
 	const builder = new RangeSetBuilder<Decoration>();
@@ -202,6 +222,26 @@ const createDecorationSet = (
 						builder.add(linkFrom, hideTo, Decoration.replace({}));
 					}
 
+					const shortNames = true;
+					if (shortNames && !isAlias && !isSelected) {
+						const linkPath = sliceText(link, internalLink.filePath);
+						const linkFile = app.metadataCache.getFirstLinkpathDest(linkPath, "");
+						if (linkFile) {
+							const linkMetadata = app.metadataCache.getFileCache(linkFile);
+							const shortName = linkMetadata?.frontmatter?.["shortName"];
+
+							const replaceFrom = linkFrom + internalLink.fileBase.from;
+							const replaceTo = linkFrom + internalLink.fileBase.to;
+							builder.add(
+								replaceFrom,
+								replaceTo,
+								Decoration.replace({
+									widget: new TextWidget(shortName),
+								})
+							);
+						}
+					}
+
 					if (configuration.showIcons && configuration.iconPosition === Position.End) {
 						builder.add(decorationAt, decorationAt, decoration);
 					}
@@ -225,7 +265,7 @@ export const createEditorExtension: CreateEditorExtension = (plugin) =>
 	ViewPlugin.define(
 		(view) => {
 			const decorationMap = createDecorationMap(plugin.configuration.iconPosition);
-			const decorationSet = createDecorationSet(view, plugin.configuration, decorationMap);
+			const decorationSet = createDecorationSet(plugin, view, decorationMap);
 
 			return {
 				decorationMap,
@@ -234,7 +274,7 @@ export const createEditorExtension: CreateEditorExtension = (plugin) =>
 					if (update.view.composing || update.view.plugin(livePreviewState)?.mousedown) {
 						this.decorationSet = this.decorationSet.map(update.changes);
 					} else if (update.selectionSet || update.viewportChanged) {
-						this.decorationSet = createDecorationSet(update.view, plugin.configuration, this.decorationMap);
+						this.decorationSet = createDecorationSet(plugin, update.view, this.decorationMap);
 					}
 				},
 			};
