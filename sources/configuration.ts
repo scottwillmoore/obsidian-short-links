@@ -68,7 +68,7 @@ export class ShortLinkPluginSettingTab extends PluginSettingTab {
 
 		new Setting(this.containerEl)
 			.setName("Short links to files")
-			.setDesc("Only show the file name in links to headings.")
+			.setDesc("Only show the file name in links to files.")
 			.addToggle((toggle) =>
 				toggle.setValue(configuration.shortLinksToFiles).onChange((newValue) => {
 					configuration.shortLinksToFiles = newValue;
