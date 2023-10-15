@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.5] - 2023-10-15
+
+### Fixed
+
+- Fix the "short links to files" description in the settings
+
 ## [1.1.4] - 2023-08-11
 
 ### Changed
@@ -90,6 +96,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Project settings for Visual Studio Code.
 - A [`README.md`](./README.md) and a [`LICENSE`](./LICENSE).
 
+[1.1.5]: https://github.com/scottwillmoore/obsidian-short-internal-links-to-headings/releases/tag/v1.1.5
 [1.1.4]: https://github.com/scottwillmoore/obsidian-short-internal-links-to-headings/releases/tag/v1.1.4
 [1.1.3]: https://github.com/scottwillmoore/obsidian-short-internal-links-to-headings/releases/tag/v1.1.3
 [1.1.2]: https://github.com/scottwillmoore/obsidian-short-internal-links-to-headings/releases/tag/v1.1.2
